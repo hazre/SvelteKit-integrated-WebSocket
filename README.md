@@ -1,10 +1,8 @@
-# SvelteKit with Integrated WebSocket Server
+# SvelteKit with Integrated WebTorrent
 
-*Updated: July 4, 2023, compatible with SvelteKit 1.21.0 and Svelte 4.0.4*
+Fork of suhaildawood's SvelteKit-integrated-WebSocket, updated for WebTorrent usage instead.
 
-First-class support for WebSockets within SvelteKit by attaching a WebSocket server to the global state.
-
-![hero_image](./hero_image.png)
+First-class support for WebTorrent within SvelteKit by attaching a WebTorrent instance to the global state.
 
 ## Developing
 
@@ -31,9 +29,12 @@ pnpm run build
 pnpm run prodServer
 ```
 
-***
+---
 
 ## Write-up
+
+> [!NOTE]
+> This was written by suhaildawood originally for a WebSocket Server, but the same logic mostly applies to a WebTorrent Instance. Read the code for more details, if you're only interested in the WebTorrent stuff.
 
 [Svelte](https://svelte.dev/) has taken the web development community by storm. It provides a foundation for highly performant web applications, and in practice I've found it to be of even more value when developing larger, more complex projects. Powered with best-in-class front-end tooling powered by [Vite](https://vitejs.dev/), [SvelteKit](https://kit.svelte.dev/) is a flexible, multi-platform approach to building websites and web applications. SvelteKit recently hit 1.0 in December 2022, making it the ideal framework for any new projects, whether they be small pre-rendered static sites or large, multi-faceted client-heavy applications.
 
@@ -57,7 +58,7 @@ This isn't ideal and it turns out that there's a better way to integrate a WebSo
 
 Rather than build the WebSocket server and/or logic as an isolated component, we can define a set of utility functions to:
 
-1. Create a new WebSocket server and attach it to a *global instance variable*.
+1. Create a new WebSocket server and attach it to a _global instance variable_.
 2. Define a function that upgrade certain HTTP requests to WebSocket connections.
 
 These utilities will be used in development and production and reside within the SvelteKit project structure: `$lib/server/webSocketUtils.ts`.
@@ -72,6 +73,7 @@ For production, we'll set up a new file at the top-level directory called `prodS
 In both development and production, the trick is to attach the WebSocket server to [`globalThis`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis), representing the global object. This WebSocket server instance is attached to the global state via a custom JavaScript Symbol via [`Symbol.for()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/for). This guarantees predictable, runtime-wide access to the server instance.
 
 What this allows for is full control of the WebSocket server in our SvelteKit server-side logic. In `hooks.server.ts`, we can call a setup function that extends the WebSocket server and includes any logic that would need to run when either the development or production server is established. In addition, we can define custom logic in the `handler` function to attach the WebSocket server context to [`event.locals`](https://kit.svelte.dev/docs/types#app-locals). With this, you could:
+
 - Integrate custom authentication logic in the `handler` function.
 - Emit WebSocket events to clients directly from server-side endpoints (for example `GET` handlers).
 

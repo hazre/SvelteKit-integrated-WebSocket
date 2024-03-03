@@ -2,7 +2,6 @@ import { fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import type { Actions } from './$types';
 import { announce } from '$lib/server/webTorrentUtils';
-import type { Torrent } from 'webtorrent';
 
 export const load = (async () => {
 	return {};

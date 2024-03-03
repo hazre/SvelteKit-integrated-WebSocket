@@ -6,7 +6,7 @@ export default defineConfig({
 	plugins: [
 		sveltekit(),
 		{
-			name: 'integratedWebsocketServer',
+			name: 'integratedWebTorrentInstance',
 			configureServer() {
 				createWTGlobalInstance();
 			},

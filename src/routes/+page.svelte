@@ -1,60 +1,50 @@
 <script lang="ts">
-  let webSocketEstablished = false;
-  let ws: WebSocket | null = null;
-  let log: string[] = [];
+	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
+	let log: string[] = [];
 
-  const logEvent = (str: string) => {
-    log = [...log, str];
-  };
+	const logEvent = (str: string) => {
+		log = [...log, str];
+	};
 
-  const establishWebSocket = () => {
-    if (webSocketEstablished) return;
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    ws = new WebSocket(`${protocol}//${window.location.host}/websocket`);
-    ws.addEventListener('open', event => {
-      webSocketEstablished = true;
-      console.log('[websocket] connection open', event);
-      logEvent('[websocket] connection open');
-    });
-    ws.addEventListener('close', event => {
-      console.log('[websocket] connection closed', event);
-      logEvent('[websocket] connection closed');
-    });
-    ws.addEventListener('message', event => {
-      console.log('[websocket] message received', event);
-      logEvent(`[websocket] message received: ${event.data}`);
-    });
-  };
+	const requestData = async () => {
+		const res = await fetch('/api/test');
+		const data = await res.json();
+		console.log('Data from GET endpoint', data);
+		logEvent(`[GET] data received: ${JSON.stringify(data)}`);
+	};
 
-  const requestData = async () => {
-    const res = await fetch('/api/test');
-    const data = await res.json();
-    console.log('Data from GET endpoint', data);
-    logEvent(`[GET] data received: ${JSON.stringify(data)}`);
-  };
-
+	$: if ($page.form) {
+		logEvent(`[FORM] repsonse: ${JSON.stringify($page.form)}`);
+	}
 </script>
 
 <main>
-  <h1>SvelteKit with WebSocket Integration</h1>
-  
-  <button disabled={webSocketEstablished} on:click={() => establishWebSocket()}>
-    Establish WebSocket connection
-  </button>
-  
-  <button on:click={() => requestData()}>
-    Request Data from GET endpoint
-  </button>
-  
-  <ul>
-    {#each log as event}
-      <li>{event}</li>
-    {/each}
-  </ul>
+	<h1>SvelteKit with WebTorrent Integration</h1>
+
+	<button on:click={() => requestData()}> Request Data from GET endpoint </button>
+
+	<form method="POST" use:enhance>
+		<label for="torrentId">Download from a magnet link: </label>
+		<input
+			name="torrentId"
+			placeholder="magnet:"
+			value="magnet:?xt=urn:btih:674D163D2184353CE21F3DE5196B0A6D7C2F9FC2&dn=bbb_sunflower_1080p_60fps_stereo_abl.mp4&tr=udp%3a%2f%2ftracker.openbittorrent.com%3a80%2fannounce&tr=udp%3a%2f%2ftracker.publicbt.com%3a80%2fannounce&ws=http%3a%2f%2fdistribution.bbb3d.renderfarming.net%2fvideo%2fmp4%2fbbb_sunflower_1080p_60fps_stereo_abl.mp4"
+		/>
+		<button type="submit">Download</button>
+	</form>
+
+	<ul>
+		{#each log as event}
+			<li>
+				<code>{event}</code>
+			</li>
+		{/each}
+	</ul>
 </main>
 
 <style>
-  main {
-    font-family: sans-serif;
-  }
+	main {
+		font-family: sans-serif;
+	}
 </style>

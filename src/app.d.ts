@@ -1,10 +1,10 @@
-import type { ExtendedWebSocketServer } from '$lib/server/webSocketUtils';
+import type { ExtendedWebTorrent } from '$lib/server/webTorrentUtils';
 
 declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			wss?: ExtendedWebSocketServer;
+			wt?: ExtendedWebTorrent;
 		}
 		// interface PageData {}
 		// interface Platform {}

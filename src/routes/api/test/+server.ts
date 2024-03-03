@@ -1,13 +1,30 @@
-import { json } from '@sveltejs/kit';
+import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
 export const GET = (async ({ url, locals }) => {
-  if (locals.wss) {
-    locals.wss.clients.forEach(client => {
-      if (client.readyState === 1) {
-        client.send(`Hello from the GET handler at ${new Date().toLocaleString()}`);
-      }
-    });
-  }
-	return json({ success: true, message: 'Hello world from GET handler', url });
+	if (!locals.wt) {
+		return error(500, '[wt] client is not initialized');
+	}
+
+	locals.wt.torrents.forEach((torrent) => {
+		const files = torrent.files.map((file) => {
+			return file.name;
+		});
+		console.log('Torrent', {
+			name: torrent.name,
+			files: files
+		});
+	});
+
+	return json({
+		success: true,
+		url,
+		torrents: locals.wt?.torrents.map((torrent) => {
+			return {
+				name: torrent.name,
+				progress: torrent.progress,
+				done: torrent.done
+			};
+		})
+	});
 }) satisfies RequestHandler;

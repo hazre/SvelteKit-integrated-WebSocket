@@ -9,15 +9,18 @@ test('verify the GET request', async ({ page }) => {
 	expect(logHtml).toContain('[GET] data received:');
 });
 
-test('verify the WebSocket connection', async ({ page }) => {
+test('add a torrent', async ({ page }) => {
+	// be aware this isn't reliable due to no proper error handling in the form action
 	await page.goto('/');
-	await page.locator('button', { hasText: 'Establish WebSocket connection' }).click();
-	await page.locator('button', { hasText: 'Request Data from GET endpoint' }).click();
-	await page.waitForLoadState('networkidle');
+	await page.click('button[type="submit"]');
+
+	await page.waitForFunction(() => {
+		const logElement = document.querySelector('ul');
+		return logElement && logElement.innerHTML.includes('[FORM] repsonse:');
+	});
+
 	const logElement = await page.locator('ul');
 	const logHtml = await logElement.innerHTML();
 	// console.log('Log HTML', logHtml);
-	expect(logHtml).toContain('[websocket] connection open');
-	expect(logHtml).toContain('[websocket] message received:');
-	expect(logHtml).toContain('[GET] data received:');
+	expect(logHtml).toContain('[FORM] repsonse: {"success":true,"message":"Torrent added"}');
 });

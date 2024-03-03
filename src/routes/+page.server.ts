@@ -21,7 +21,8 @@ export const actions = {
 		}
 
 		locals.wt.add(torrentId, {
-			announce: announce
+			announce: announce,
+			path: './webtorrent'
 		});
 
 		return { success: true, message: 'Torrent added' };
